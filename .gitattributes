@@ -1,0 +1,10 @@
+# Asegurar que los archivos GeoJSON y PNG se traten como binarios
+*.geojson linguist-vendored
+*.png linguist-vendored
+*.jpg linguist-vendored
+*.jpeg linguist-vendored
+
+# Archivos de datos - asegurar que se incluyan en el repositorio
+assets/data/*.geojson -diff -merge
+assets/maps/*.png -diff -merge
+

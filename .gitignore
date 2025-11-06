@@ -65,9 +65,15 @@ coverage/
 .stylelintcache
 *.tsbuildinfo
 
-# Datos copiados (se regeneran)
+# Datos copiados (se regeneran durante build)
+# NOTA: Solo ignoramos public/data/ y public/maps/ porque se generan automáticamente
+# Los archivos originales en assets/data/ y assets/maps/ DEBEN estar en el repositorio
 public/data/
 public/maps/
+
+# IMPORTANTE: NO ignorar los archivos fuente en assets/
+# assets/data/ debe estar en el repositorio
+# assets/maps/ debe estar en el repositorio
 
 # Archivos temporales
 *.tmp
@@ -86,7 +92,7 @@ public/maps/
 .nfs*
 
 # Archivos de package managers
-package-lock.json
+# package-lock.json - Recomendado incluirlo para builds consistentes
 yarn.lock
 pnpm-lock.yaml
 

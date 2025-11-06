@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "copy-data": "node scripts/copy-data.js",
+    "build": "npm run copy-data && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "prebuild": "npm run copy-data",
+    "postinstall": "npm run copy-data"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.17.0",
