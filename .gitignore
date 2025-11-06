@@ -66,10 +66,11 @@ coverage/
 *.tsbuildinfo
 
 # Datos copiados (se regeneran durante build)
-# NOTA: Solo ignoramos public/data/ y public/maps/ porque se generan automáticamente
-# Los archivos originales en assets/data/ y assets/maps/ DEBEN estar en el repositorio
-public/data/
-public/maps/
+# SOLUCIÓN: NO ignoramos public/data/ y public/maps/ para que Vercel los tenga disponibles
+# Los archivos DEBEN estar en el repositorio para que Vercel pueda servirlos
+# public/data/
+# public/maps/
+# public/images/
 
 # IMPORTANTE: NO ignorar los archivos fuente en assets/
 # assets/data/ debe estar en el repositorio
