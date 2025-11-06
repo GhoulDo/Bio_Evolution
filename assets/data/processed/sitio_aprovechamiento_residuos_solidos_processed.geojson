@@ -1,0 +1,136 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::4326"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.104951,
+          -3.330869
+        ]
+      },
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Predio M & M Universal CHIP AAA0142LALW (Segregación del Polo Lote 6 La Primavera - Localidad de Usaquén)",
+        "tipo": "Punto de Reciclaje",
+        "localidad": "USAQUÉN",
+        "direccion": "Predio M & M Universal",
+        "materiales": "papel,plástico,vidrio,metal",
+        "horario": "Consultar",
+        "telefono": null,
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "_processed": true,
+        "_source": "sitio_aprovechamiento_residuos_solidos"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.219831,
+          -3.592304
+        ]
+      },
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Predio Avianca 2 - Sinembore CHIP AAA0156OREP",
+        "tipo": "Punto de Reciclaje",
+        "localidad": "No especificada",
+        "direccion": "Predio Avianca 2 - Sinembore",
+        "materiales": "papel,plástico,vidrio,metal",
+        "horario": "Consultar",
+        "telefono": null,
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "_processed": true,
+        "_source": "sitio_aprovechamiento_residuos_solidos"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.171661,
+          -3.419436
+        ]
+      },
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Calle 69A No. 73A - 45 CHIP AAA0061LZDE",
+        "tipo": "Punto de Reciclaje",
+        "localidad": "No especificada",
+        "direccion": "Calle 69A No. 73A - 45",
+        "materiales": "papel,plástico,vidrio,metal",
+        "horario": "Consultar",
+        "telefono": null,
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "_processed": true,
+        "_source": "sitio_aprovechamiento_residuos_solidos"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.171401,
+          -3.560739
+        ]
+      },
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Parque Entrenubes Sector El Triunfo CHIP AAA0006JPFT",
+        "tipo": "Punto de Reciclaje",
+        "localidad": "No especificada",
+        "direccion": "Parque Entrenubes Sector El Triunfo",
+        "materiales": "papel,plástico,vidrio,metal",
+        "horario": "Consultar",
+        "telefono": null,
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "_processed": true,
+        "_source": "sitio_aprovechamiento_residuos_solidos"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.18274,
+          -3.572556
+        ]
+      },
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Parque Entrenubes Sector La Cantera",
+        "tipo": "Punto de Reciclaje",
+        "localidad": "No especificada",
+        "direccion": "Parque Entrenubes Sector La Cantera",
+        "materiales": "papel,plástico,vidrio,metal",
+        "horario": "Consultar",
+        "telefono": null,
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "_processed": true,
+        "_source": "sitio_aprovechamiento_residuos_solidos"
+      }
+    }
+  ]
+}

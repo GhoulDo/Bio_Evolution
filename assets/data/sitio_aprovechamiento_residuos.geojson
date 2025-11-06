@@ -1,0 +1,182 @@
+{
+  "type": "FeatureCollection",
+  "name": "sitio_aprovechamiento_residuos",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4326" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "001",
+        "NOMBRE": "ECA Usaquén - La Primavera",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio actual",
+        "ESCALA_CAP": "Alta",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "ECA",
+        "materiales": "papel,plástico,vidrio,metal,RAEE",
+        "localidad": "USAQUÉN",
+        "direccion": "Zona Industrial La Primavera",
+        "horario": "Lunes a Viernes 8:00-17:00, Sábados 8:00-12:00",
+        "telefono": "601-377-8899"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.0291, 4.7354]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "002",
+        "NOMBRE": "ECA Avianca - Fontibón",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio actual",
+        "ESCALA_CAP": "Media",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "ECA",
+        "materiales": "papel,plástico,vidrio,metal",
+        "localidad": "FONTIBÓN",
+        "direccion": "Sector Avianca, Fontibón",
+        "horario": "Lunes a Viernes 7:00-16:00",
+        "telefono": "601-266-1234"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1408, 4.6829]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "003",
+        "NOMBRE": "Punto Verde Calle 69A No. 73A-45",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio potencial",
+        "ESCALA_CAP": "Baja",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "Punto Verde",
+        "materiales": "papel,plástico,vidrio",
+        "localidad": "BARRIOS UNIDOS",
+        "direccion": "Calle 69A No. 73A-45",
+        "horario": "24 horas",
+        "telefono": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1067, 4.6587]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "004",
+        "NOMBRE": "Parque Entrenubes Sector El Triunfo",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio potencial",
+        "ESCALA_CAP": "Media",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "Punto de Reciclaje",
+        "materiales": "orgánico,papel,cartón",
+        "localidad": "RAFAEL URIBE URIBE",
+        "direccion": "Parque Entrenubes, Sector El Triunfo",
+        "horario": "Martes a Domingo 8:00-16:00",
+        "telefono": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1050, 4.5329]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "005",
+        "NOMBRE": "Parque Entrenubes Sector La Cantera",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio potencial",
+        "ESCALA_CAP": "Baja",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "Punto de Reciclaje",
+        "materiales": "orgánico,papel",
+        "localidad": "RAFAEL URIBE URIBE",
+        "direccion": "Parque Entrenubes, Sector La Cantera",
+        "horario": "Martes a Domingo 8:00-16:00",
+        "telefono": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1116, 4.5145]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "006",
+        "NOMBRE": "ECA Kennedy Central",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio propuesto",
+        "ESCALA_CAP": "Alta",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "ECA",
+        "materiales": "papel,plástico,vidrio,metal,RAEE",
+        "localidad": "KENNEDY",
+        "direccion": "Av. Ciudad de Cali con Calle 8",
+        "horario": "Lunes a Viernes 8:00-17:00",
+        "telefono": "601-444-5566"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1572, 4.6097]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "007",
+        "NOMBRE": "Punto Verde Suba Centro",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Decreto 555 del 29 de diciembre de 2021",
+        "OBSERVACIO": "Sitio propuesto",
+        "ESCALA_CAP": "Media",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "UAESP",
+        "tipo": "Punto Verde",
+        "materiales": "papel,plástico,vidrio",
+        "localidad": "SUBA",
+        "direccion": "Av. Suba con Calle 100",
+        "horario": "24 horas",
+        "telefono": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.0908, 4.7577]
+      }
+    }
+  ]
+}

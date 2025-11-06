@@ -1,0 +1,124 @@
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Build
+dist/
+build/
+.vite/
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+
+# Editor
+.vscode/
+.idea
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# Datos copiados (se regeneran)
+public/data/
+public/maps/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Archivos de análisis y documentación generados
+*.analysis
+*.report
+
+# Archivos de sistema
+.directory
+.fuse_hidden*
+.nfs*
+
+# Archivos de package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Service Workers (si se generan automáticamente)
+sw.js
+service-worker.js
+workbox-*.js
+
+# Archivos de IDE específicos
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# Archivos de TypeScript (si se usa en el futuro)
+*.tsbuildinfo
+
+# Archivos de análisis estático
+.sonar/
+.scannerwork/
+
+# Archivos de optimización de datos
+*.geojson.backup
+*.geojson.old
+*.json.backup
+
+# Archivos de configuración local
+config.local.js
+vite.config.local.js
+
+# Archivos de desarrollo
+*.dev.js
+*.dev.json
+dev-data/
+test-data/

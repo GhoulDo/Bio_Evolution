@@ -1,0 +1,118 @@
+
+
+{
+  "type": "FeatureCollection",
+  "name": "C:\\Users\\ADMIN\\Desktop\\SDP\\DOCUMENTACION POT DCO 555 2021\\Sistema_General_Residuos_Solidos\\Formatos_Datos_Abiertos\\FormatoGJSON\\Sitio_aprovechamiento_residuos.geojson",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Predio M & M Universal CHIP AAA0142LALW (Segregación del Polo Lote 6 La Primavera - Localidad de Usaquén)",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Hace parte del Decreto 555 del 29 de diciembre de 2021 - Por el cual se adopta la revisión general del Plan de Ordenamiento Territorial de Bogotá",
+        "OBSERVACIO": "Sitio actual",
+        "ESCALA_CAP": "",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "44"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104955.833399999886751,
+          119793.665100000798702
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Predio Avianca 2 - Sinembore CHIP AAA0156OREP",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Hace parte del Decreto 555 del 29 de diciembre de 2021 - Por el cual se adopta la revisión general del Plan de Ordenamiento Territorial de Bogotá",
+        "OBSERVACIO": "Sitio actual",
+        "ESCALA_CAP": "",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "44"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92313.0,
+          90484.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Calle 69A No. 73A - 45 CHIP AAA0061LZDE",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Hace parte del Decreto 555 del 29 de diciembre de 2021 - Por el cual se adopta la revisión general del Plan de Ordenamiento Territorial de Bogotá",
+        "OBSERVACIO": "Sitio potencial",
+        "ESCALA_CAP": "",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "44"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          97551.0,
+          109840.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Parque Entrenubes Sector El Triunfo CHIP AAA0006JPFT",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Hace parte del Decreto 555 del 29 de diciembre de 2021 - Por el cual se adopta la revisión general del Plan de Ordenamiento Territorial de Bogotá",
+        "OBSERVACIO": "Sitio potencial",
+        "ESCALA_CAP": "",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "44"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          97716.867700000293553,
+          94058.033099999651313
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "CODIGO_ID": "",
+        "NOMBRE": "Parque Entrenubes Sector La Cantera",
+        "ACTO_ADMIN": "DEC",
+        "NUMERO_ACT": "555",
+        "FECHA_ACTO": "29/12/2021",
+        "NORMATIVA": "Hace parte del Decreto 555 del 29 de diciembre de 2021 - Por el cual se adopta la revisión general del Plan de Ordenamiento Territorial de Bogotá",
+        "OBSERVACIO": "Sitio potencial",
+        "ESCALA_CAP": "",
+        "FECHA_CAPT": "29/12/2021",
+        "RESPONSABL": "44"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          96456.0,
+          92727.0
+        ]
+      }
+    }
+  ]
+}
