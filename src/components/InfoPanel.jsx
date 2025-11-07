@@ -1,12 +1,259 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import useAppStore from '../store/useAppStore'
 import { useZonificacion } from '../hooks/useZonificacion'
 import { MATERIALES_INFO } from '../utils/constants'
+import { IMPACT_INITIATIVES } from '../data/impactInitiatives'
+
+const formatContactEntry = (key, value) => {
+  if (!value) return null
+  const normalizedKey = key.toLowerCase()
+
+  if (normalizedKey === 'email') {
+    return (
+      <a key={key} href={`mailto:${value}`} className="text-xs sm:text-sm text-emerald-700 font-semibold underline">
+        {value}
+      </a>
+    )
+  }
+
+  if (normalizedKey === 'telefono' || normalizedKey === 'teléfono') {
+    const digits = value.replace(/[^0-9+]/g, '')
+    return (
+      <a key={key} href={`tel:${digits}`} className="text-xs sm:text-sm text-emerald-700 font-semibold underline">
+        {value}
+      </a>
+    )
+  }
+
+  if (normalizedKey === 'whatsapp') {
+    const digits = value.replace(/[^0-9+]/g, '')
+    return (
+      <a key={key} href={`https://wa.me/${digits.replace('+', '')}`} target="_blank" rel="noreferrer" className="text-xs sm:text-sm text-emerald-700 font-semibold underline">
+        WhatsApp
+      </a>
+    )
+  }
+
+  return (
+    <a key={key} href={value} target="_blank" rel="noreferrer" className="text-xs sm:text-sm text-emerald-700 font-semibold underline capitalize">
+      {key}
+    </a>
+  )
+}
+
+const ReciclaConCausaSection = ({
+  iniciativasTags,
+  selectedCauseTag,
+  setSelectedCauseTag,
+  iniciativasFiltradas,
+  highlightedInitiative,
+  setHighlightedInitiative,
+  formatContactEntry
+}) => {
+  return (
+    <div className="bg-white rounded-2xl shadow-large p-6 card-hover border-2 border-rose-100 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-rose-200/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-200/10 rounded-full blur-2xl"></div>
+      <div className="relative">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <span className="text-3xl">❤️</span>
+            <span>Recicla con Causa</span>
+          </h3>
+          <div className="px-3 py-1 bg-rose-100 rounded-full border border-rose-200">
+            <span className="text-xs font-bold text-rose-600 uppercase tracking-wide">
+              Impacto social
+            </span>
+          </div>
+        </div>
+        
+        <p className="text-sm text-gray-600 mb-4">
+          Conecta tus hábitos de reciclaje con organizaciones bogotanas que transforman materiales en vida digna, salud y oportunidades.
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-5">
+          {iniciativasTags.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedCauseTag(tag)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                selectedCauseTag === tag
+                  ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg'
+                  : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+              }`}
+            >
+              {tag === 'todos' ? 'Todas las causas' : `#${tag}`}
+            </button>
+          ))}
+        </div>
+
+        {highlightedInitiative ? (
+          <div className="relative bg-gradient-to-br from-emerald-50 via-white to-rose-50 border-2 border-emerald-200 rounded-2xl p-5 sm:p-6 shadow-md mb-6">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-4 w-20 h-20 bg-emerald-300/10 rounded-full blur-2xl"></div>
+            <div className="relative flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-emerald-500 font-semibold mb-1">
+                    {highlightedInitiative.causa}
+                  </p>
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-gray-900">
+                    {highlightedInitiative.nombre}
+                  </h4>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {highlightedInitiative.tags?.map((tag) => (
+                    <span
+                      key={`${highlightedInitiative.id}-${tag}`}
+                      className="px-3 py-1 rounded-full bg-white text-emerald-600 border border-emerald-200 text-xs font-bold shadow-sm"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-700 leading-relaxed">
+                {highlightedInitiative.enfoqueSocial}
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">
+                    Materiales que puedes aportar
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {highlightedInitiative.materialesAceptados?.map((material) => (
+                      <span
+                        key={`${highlightedInitiative.id}-${material}`}
+                        className="px-3 py-1.5 bg-white border border-emerald-200 rounded-lg text-xs font-semibold text-emerald-700 shadow-sm"
+                      >
+                        {material}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">
+                    ¿Por qué esta causa importa?
+                  </p>
+                  <ul className="space-y-1.5 text-sm text-gray-700">
+                    {highlightedInitiative.valoresClave?.map((valor) => (
+                      <li key={`${highlightedInitiative.id}-${valor}`} className="flex items-start gap-2">
+                        <span className="text-emerald-500 mt-1">•</span>
+                        <span>{valor}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-emerald-100 pt-4">
+                <div className="flex gap-2 flex-wrap">
+                  {highlightedInitiative.comoDonarUrl && (
+                    <a
+                      href={highlightedInitiative.comoDonarUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl"
+                    >
+                      💚 Quiero apoyar
+                    </a>
+                  )}
+                  {highlightedInitiative.mapaAcopioUrl && (
+                    <a
+                      href={highlightedInitiative.mapaAcopioUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 bg-white border border-emerald-200 text-emerald-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:bg-emerald-50"
+                    >
+                      📍 Ver puntos de entrega
+                    </a>
+                  )}
+                  {highlightedInitiative.infoUrl && (
+                    <a
+                      href={highlightedInitiative.infoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 bg-white border border-emerald-200 text-emerald-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:bg-emerald-50"
+                    >
+                      ℹ️ Más información
+                    </a>
+                  )}
+                </div>
+                {highlightedInitiative.contacto && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
+                      Contacto directo:
+                    </span>
+                    {Object.entries(highlightedInitiative.contacto).map(([key, value]) =>
+                      formatContactEntry(key, value)
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center text-sm text-gray-600">
+            No encontramos iniciativas para este filtro.
+          </div>
+        )}
+
+        {highlightedInitiative && (
+          <div>
+            <h4 className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-3">
+              Otras iniciativas que puedes apoyar
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {iniciativasFiltradas
+                .filter((initiative) => initiative.id !== highlightedInitiative.id)
+                .slice(0, 4)
+                .map((initiative) => (
+                  <button
+                    key={initiative.id}
+                    onClick={() => setHighlightedInitiative(initiative)}
+                    className="text-left bg-white border-2 border-gray-200 hover:border-emerald-300 rounded-xl p-4 transition-all shadow-sm hover:shadow-lg group"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <h5 className="text-sm font-bold text-gray-800 group-hover:text-emerald-700 transition-colors">
+                        {initiative.nombre}
+                      </h5>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 border border-rose-200 font-semibold">
+                        {initiative.causa}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 line-clamp-3">
+                      {initiative.enfoqueSocial}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {initiative.materialesAceptados?.slice(0, 2).map((material) => (
+                        <span
+                          key={`${initiative.id}-material-${material}`}
+                          className="px-2 py-1 bg-emerald-50 text-emerald-600 text-[11px] font-semibold rounded-full border border-emerald-100"
+                        >
+                          {material}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const InfoPanel = () => {
   const { userLocation, userZona, selectedSitio } = useAppStore()
   const { generarHorariosEstimados, parseFrecuencia } = useZonificacion()
   const [selectedMaterial, setSelectedMaterial] = useState(null)
+  const [selectedCauseTag, setSelectedCauseTag] = useState('todos')
+  const [highlightedInitiative, setHighlightedInitiative] = useState(
+    IMPACT_INITIATIVES[0] || null
+  )
   
   // Generar horarios estimados
   const horarios = useMemo(() => {
@@ -19,44 +266,81 @@ const InfoPanel = () => {
     if (!userZona) return []
     return parseFrecuencia(userZona.frecuencia)
   }, [userZona, parseFrecuencia])
+
+  const iniciativasTags = useMemo(() => {
+    const base = new Set()
+    IMPACT_INITIATIVES.forEach((initiative) => {
+      initiative.tags?.forEach(tag => base.add(tag))
+    })
+    return ['todos', ...Array.from(base)]
+  }, [])
+
+  const iniciativasFiltradas = useMemo(() => {
+    if (selectedCauseTag === 'todos') return IMPACT_INITIATIVES
+    return IMPACT_INITIATIVES.filter(initiative => initiative.tags?.includes(selectedCauseTag))
+  }, [selectedCauseTag])
+
+  useEffect(() => {
+    if (!iniciativasFiltradas.length) {
+      setHighlightedInitiative(null)
+      return
+    }
+    const existsInSelection = highlightedInitiative && iniciativasFiltradas.some(
+      initiative => initiative.id === highlightedInitiative.id
+    )
+    if (!existsInSelection) {
+      setHighlightedInitiative(iniciativasFiltradas[0])
+    }
+  }, [iniciativasFiltradas, highlightedInitiative])
   
   // Estado inicial: sin ubicación
   if (!userLocation) {
     return (
-      <div className="bg-white rounded-2xl shadow-large p-8 card-hover animate-fade-in">
-        <div className="text-center py-8">
-          <div className="text-7xl mb-6 animate-bounce-subtle">🗺️</div>
-          <h3 className="text-2xl font-bold gradient-text mb-3">
-            Bienvenido a Bio Evolution
-          </h3>
-          <p className="text-gray-600 mb-8 text-lg">
-            Usa el buscador o tu ubicación GPS para conocer cuándo pasa el camión de recolección en tu zona
-          </p>
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 text-left shadow-soft">
-            <h4 className="font-bold text-green-800 mb-4 text-lg flex items-center gap-2">
-              <span>✨</span>
-              <span>¿Qué puedes hacer?</span>
-            </h4>
-            <ul className="text-sm text-green-700 space-y-2">
-              <li className="flex items-center gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Ver cuándo pasa la recolección en tu cuadra</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Encontrar sitios de reciclaje cercanos</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Aprender a separar correctamente</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span>Conocer tu operador de aseo</span>
-              </li>
-            </ul>
+      <div className="space-y-6 animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-large p-8 card-hover">
+          <div className="text-center py-8">
+            <div className="text-7xl mb-6 animate-bounce-subtle">🗺️</div>
+            <h3 className="text-2xl font-bold gradient-text mb-3">
+              Bienvenido a Bio Evolution
+            </h3>
+            <p className="text-gray-600 mb-8 text-lg">
+              Usa el buscador o tu ubicación GPS para conocer cuándo pasa el camión de recolección en tu zona
+            </p>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 text-left shadow-soft">
+              <h4 className="font-bold text-green-800 mb-4 text-lg flex items-center gap-2">
+                <span>✨</span>
+                <span>¿Qué puedes hacer?</span>
+              </h4>
+              <ul className="text-sm text-green-700 space-y-2">
+                <li className="flex items-center gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Ver cuándo pasa la recolección en tu cuadra</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Encontrar sitios de reciclaje cercanos</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Aprender a separar correctamente</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-600 font-bold">✓</span>
+                  <span>Conocer tu operador de aseo</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
+        <ReciclaConCausaSection
+          iniciativasTags={iniciativasTags}
+          selectedCauseTag={selectedCauseTag}
+          setSelectedCauseTag={setSelectedCauseTag}
+          iniciativasFiltradas={iniciativasFiltradas}
+          highlightedInitiative={highlightedInitiative}
+          setHighlightedInitiative={setHighlightedInitiative}
+          formatContactEntry={formatContactEntry}
+        />
       </div>
     )
   }
@@ -64,17 +348,28 @@ const InfoPanel = () => {
   // Usuario ubicado pero sin zona
   if (userLocation && !userZona) {
     return (
-      <div className="bg-white rounded-2xl shadow-large p-8 animate-fade-in">
-        <div className="text-center py-8">
-          <div className="text-7xl mb-6">⚠️</div>
-          <h3 className="text-2xl font-bold text-yellow-700 mb-3">
-            Ubicación fuera de cobertura
-          </h3>
-          <p className="text-gray-600 text-lg">
-            No pudimos encontrar información de recolección para esta ubicación. 
-            Verifica que estés en Bogotá.
-          </p>
+      <div className="space-y-6 animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-large p-8">
+          <div className="text-center py-8">
+            <div className="text-7xl mb-6">⚠️</div>
+            <h3 className="text-2xl font-bold text-yellow-700 mb-3">
+              Ubicación fuera de cobertura
+            </h3>
+            <p className="text-gray-600 text-lg">
+              No pudimos encontrar información de recolección para esta ubicación. 
+              Verifica que estés en Bogotá.
+            </p>
+          </div>
         </div>
+        <ReciclaConCausaSection
+          iniciativasTags={iniciativasTags}
+          selectedCauseTag={selectedCauseTag}
+          setSelectedCauseTag={setSelectedCauseTag}
+          iniciativasFiltradas={iniciativasFiltradas}
+          highlightedInitiative={highlightedInitiative}
+          setHighlightedInitiative={setHighlightedInitiative}
+          formatContactEntry={formatContactEntry}
+        />
       </div>
     )
   }
@@ -278,6 +573,16 @@ const InfoPanel = () => {
           </p>
         </div>
       </div>
+      
+      <ReciclaConCausaSection
+        iniciativasTags={iniciativasTags}
+        selectedCauseTag={selectedCauseTag}
+        setSelectedCauseTag={setSelectedCauseTag}
+        iniciativasFiltradas={iniciativasFiltradas}
+        highlightedInitiative={highlightedInitiative}
+        setHighlightedInitiative={setHighlightedInitiative}
+        formatContactEntry={formatContactEntry}
+      />
       
       {/* Tips de Separación - Dashboard Style */}
       <div className="bg-white rounded-2xl shadow-large p-6 card-hover border-2 border-gray-100">

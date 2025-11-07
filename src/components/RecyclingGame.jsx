@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { MATERIALES_INFO } from '../utils/constants'
 
 const ITEMS_JUEGO = [
@@ -22,6 +22,10 @@ const ITEMS_JUEGO = [
   { nombre: 'Batería', tipo: 'RAEE', icono: '🔋', dificultad: 3 },
 ]
 
+const STORAGE_KEY = 'recycling-game-stats'
+const BASE_TIME = 60
+const MAX_TIME = 90
+
 const RecyclingGame = () => {
   const [gameState, setGameState] = useState('inicio') // inicio, jugando, resultado
   const [currentItem, setCurrentItem] = useState(null)
@@ -29,9 +33,53 @@ const RecyclingGame = () => {
   const [totalItems, setTotalItems] = useState(0)
   const [streak, setStreak] = useState(0)
   const [maxStreak, setMaxStreak] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(60)
+  const [timeLeft, setTimeLeft] = useState(BASE_TIME)
   const [feedback, setFeedback] = useState(null)
   const [itemsUsed, setItemsUsed] = useState([])
+  const [bestScore, setBestScore] = useState(0)
+  const [bestStreakGlobal, setBestStreakGlobal] = useState(0)
+  const [gamesPlayed, setGamesPlayed] = useState(0)
+  const [recentSessions, setRecentSessions] = useState([])
+  const [recordFlags, setRecordFlags] = useState({ score: false, streak: false })
+  const resultPersistedRef = useRef(false)
+  const statsLoadedRef = useRef(false)
+  const [keyboardHintVisible, setKeyboardHintVisible] = useState(false)
+
+  const accuracyPercentage = totalItems > 0
+    ? Number(((score / (totalItems * 10)) * 100).toFixed(1))
+    : 0
+  const ecoLevel = Math.min(5, Math.floor(maxStreak / 5) + 1)
+  const comboMultiplier = streak >= 5
+    ? (1 + Math.floor(streak / 5) * 0.5).toFixed(1)
+    : null
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const savedStats = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || 'null')
+      if (savedStats) {
+        setBestScore(savedStats.bestScore || 0)
+        setBestStreakGlobal(savedStats.bestStreak || 0)
+        setGamesPlayed(savedStats.gamesPlayed || 0)
+        setRecentSessions(savedStats.recentSessions || [])
+      }
+    } catch (error) {
+      console.warn('No se pudieron cargar las estadísticas guardadas', error)
+    } finally {
+      statsLoadedRef.current = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!statsLoadedRef.current || typeof window === 'undefined') return
+    const payload = {
+      bestScore,
+      bestStreak: bestStreakGlobal,
+      gamesPlayed,
+      recentSessions
+    }
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  }, [bestScore, bestStreakGlobal, gamesPlayed, recentSessions])
   
   // Temporizador del juego
   useEffect(() => {
@@ -58,15 +106,74 @@ const RecyclingGame = () => {
     }
   }, [feedback])
   
-  const startGame = () => {
-    setGameState('jugando')
+  useEffect(() => {
+    if (gameState !== 'resultado' || resultPersistedRef.current) return
+    resultPersistedRef.current = true
+
+    const isNewBestScore = score > bestScore
+    const isNewBestStreak = maxStreak > bestStreakGlobal
+    setRecordFlags({ score: isNewBestScore, streak: isNewBestStreak })
+
+    if (isNewBestScore) {
+      setBestScore(score)
+    }
+    if (isNewBestStreak) {
+      setBestStreakGlobal(maxStreak)
+    }
+    setGamesPlayed(prev => prev + 1)
+    setRecentSessions(prev => {
+      const session = {
+        score,
+        maxStreak,
+        accuracy: accuracyPercentage,
+        timestamp: new Date().toISOString()
+      }
+      const updated = [session, ...prev]
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 5)
+      return updated
+    })
+  }, [gameState, score, maxStreak, accuracyPercentage, bestScore, bestStreakGlobal])
+
+  useEffect(() => {
+    if (gameState !== 'jugando') return
+
+    const handleKeyPress = (event) => {
+      if (!currentItem || feedback) return
+      const numeric = parseInt(event.key, 10)
+      if (Number.isNaN(numeric) || numeric <= 0) return
+      const index = numeric - 1
+      const materialesUnicos = obtenerMaterialesUnicos()
+      if (index >= materialesUnicos.length) return
+      const [key] = materialesUnicos[index]
+      checkAnswer(key)
+      setKeyboardHintVisible(true)
+      setTimeout(() => setKeyboardHintVisible(false), 2000)
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [gameState, currentItem, feedback])
+
+  const resetGameStates = () => {
     setScore(0)
     setTotalItems(0)
     setStreak(0)
     setMaxStreak(0)
-    setTimeLeft(60)
+    setTimeLeft(BASE_TIME)
     setFeedback(null)
     setItemsUsed([])
+    setRecordFlags({ score: false, streak: false })
+    resultPersistedRef.current = false
+  }
+
+  const obtenerMaterialesUnicos = () => Object.entries(MATERIALES_INFO).filter(([key]) => (
+    !key.includes('ó') && !key.includes('á') && !key.includes('é') && !key.includes('í') && !key.includes('ú')
+  ))
+
+  const startGame = () => {
+    resetGameStates()
+    setGameState('jugando')
     nextItem()
   }
   
@@ -105,17 +212,24 @@ const RecyclingGame = () => {
     setTotalItems(prev => prev + 1)
     
     if (isCorrect) {
-      const points = currentItem.dificultad * 10
+      const upcomingStreak = streak + 1
+      const multiplier = 1 + Math.floor((upcomingStreak - 1) / 5) * 0.5
+      const basePoints = currentItem.dificultad * 10
+      const points = Math.round(basePoints * multiplier)
       setScore(prev => prev + points)
       setStreak(prev => {
         const newStreak = prev + 1
         setMaxStreak(current => Math.max(current, newStreak))
         return newStreak
       })
+      if (upcomingStreak > 0 && upcomingStreak % 5 === 0) {
+        setTimeLeft(prev => Math.min(prev + 5, MAX_TIME))
+      }
       setFeedback({ 
         type: 'success', 
         message: `¡Correcto! +${points} puntos`,
-        streak: streak + 1
+        streak: upcomingStreak,
+        multiplier: multiplier > 1 ? `x${multiplier.toFixed(1)}` : null
       })
     } else {
       setStreak(0)
@@ -134,15 +248,13 @@ const RecyclingGame = () => {
   }
   
   const restartGame = () => {
+    resetGameStates()
     setGameState('inicio')
-    setFeedback(null)
   }
   
   // Filtrar materiales únicos (eliminar duplicados con/sin acento)
-  const materialesUnicos = Object.entries(MATERIALES_INFO).filter(([key]) => {
-    // Mantener solo las versiones sin acento o la primera ocurrencia
-    return !key.includes('ó') && !key.includes('á') && !key.includes('é') && !key.includes('í') && !key.includes('ú')
-  })
+  const materialesUnicos = obtenerMaterialesUnicos()
+  const tiempoPorcentaje = Math.max(0, Math.min(100, (timeLeft / MAX_TIME) * 100))
 
   // Pantalla de inicio - Responsive
   if (gameState === 'inicio') {
@@ -157,6 +269,44 @@ const RecyclingGame = () => {
             Clasifica correctamente los residuos en 60 segundos. 
             <span className="block mt-1">¡Gana más puntos con items difíciles!</span>
           </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="rounded-xl border-2 border-green-200 bg-green-50 p-3">
+              <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">Mejor Puntaje</div>
+              <div className="text-2xl sm:text-3xl font-bold text-green-600">{bestScore}</div>
+            </div>
+            <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-3">
+              <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1">Mejor Racha</div>
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-600">{bestStreakGlobal}</div>
+            </div>
+            <div className="rounded-xl border-2 border-teal-200 bg-teal-50 p-3">
+              <div className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1">Partidas Jugadas</div>
+              <div className="text-2xl sm:text-3xl font-bold text-teal-600">{gamesPlayed}</div>
+            </div>
+          </div>
+
+          {recentSessions.length > 0 && (
+            <div className="mb-4 sm:mb-6 text-left">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Últimas partidas</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {recentSessions.map((session, index) => (
+                  <div 
+                    key={`${session.timestamp}-${index}`}
+                    className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                  >
+                    <div className="text-xs text-gray-400">
+                      {new Date(session.timestamp).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })}
+                    </div>
+                    <div className="flex justify-between text-xs sm:text-sm text-gray-600 mt-1">
+                      <span>Puntos: <strong>{session.score}</strong></span>
+                      <span>Racha: <strong>{session.maxStreak}</strong></span>
+                      <span>Precisión: <strong>{session.accuracy}%</strong></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
             {materialesUnicos.slice(0, 6).map(([key, info]) => (
@@ -176,6 +326,10 @@ const RecyclingGame = () => {
           >
             🎮 Comenzar Juego
           </button>
+
+          <p className="text-xs text-gray-400 mt-3">
+            Consejo: puedes usar las teclas <span className="font-semibold">1-9</span> para seleccionar opciones rápidamente.
+          </p>
         </div>
       </div>
     )
@@ -186,24 +340,51 @@ const RecyclingGame = () => {
     return (
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-large p-4 sm:p-6 lg:p-8 border border-gray-100">
         {/* Header con stats - Responsive */}
-        <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
           <div className="flex gap-2 sm:gap-4 flex-1">
-            <div className="text-center flex-1 bg-green-50 rounded-lg p-2 sm:p-3 border border-green-200">
+            <div className="flex-1 bg-green-50 rounded-lg p-2 sm:p-3 border border-green-200 text-center">
+              <div className="text-xs uppercase tracking-wide text-green-600 font-semibold mb-1">Puntos</div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">{score}</div>
-              <div className="text-xs text-gray-600">Puntos</div>
             </div>
-            <div className="text-center flex-1 bg-orange-50 rounded-lg p-2 sm:p-3 border border-orange-200">
+            <div className="flex-1 bg-orange-50 rounded-lg p-2 sm:p-3 border border-orange-200 text-center">
+              <div className="text-xs uppercase tracking-wide text-orange-600 font-semibold mb-1">Racha</div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">{streak}</div>
-              <div className="text-xs text-gray-600">Racha</div>
+            </div>
+            <div className="flex-1 bg-emerald-50 rounded-lg p-2 sm:p-3 border border-emerald-200 text-center">
+              <div className="text-xs uppercase tracking-wide text-emerald-600 font-semibold mb-1">Nivel ECO</div>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600">Lv. {ecoLevel}</div>
             </div>
           </div>
-          
-          <div className="text-center bg-blue-50 rounded-lg p-2 sm:p-3 border border-blue-200 min-w-[60px] sm:min-w-[80px]">
+
+          <div className="bg-blue-50 rounded-lg p-2 sm:p-3 border border-blue-200 min-w-[80px] sm:min-w-[100px] text-center">
             <div className={`text-xl sm:text-2xl lg:text-3xl font-bold ${timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`}>
               {timeLeft}s
             </div>
             <div className="text-xs text-gray-600">Tiempo</div>
           </div>
+        </div>
+
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4 sm:mb-6">
+          <div 
+            className={`h-full transition-all duration-500 ${timeLeft <= 10 ? 'bg-gradient-to-r from-orange-400 via-red-500 to-red-600' : 'bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500'}`}
+            style={{ width: `${tiempoPorcentaje}%` }}
+          ></div>
+        </div>
+
+        {comboMultiplier && (
+          <div className="bg-gradient-to-r from-yellow-100 via-amber-100 to-orange-100 border border-yellow-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold text-yellow-800 mb-3 sm:mb-4 flex items-center justify-center gap-2 animate-pulse-soft">
+            ⚡ Multiplicador activo: x{comboMultiplier}
+          </div>
+        )}
+
+        {keyboardHintVisible && (
+          <div className="bg-gray-900 text-white rounded-lg px-3 py-2 text-xs sm:text-sm mb-3 sm:mb-4 inline-flex items-center gap-2 shadow-xl">
+            ⌨️ Usaste un atajo de teclado: números 1-9 corresponden a las tarjetas en orden.
+          </div>
+        )}
+
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs sm:text-sm text-gray-600 mb-4">
+          Rápido tip: cada racha de 5 respuestas correctas te suma <strong>+5 segundos</strong> y aumenta tu multiplicador.
         </div>
         
         {/* Item actual - Responsive */}
@@ -268,8 +449,6 @@ const RecyclingGame = () => {
   
   // Pantalla de resultados - Responsive
   if (gameState === 'resultado') {
-    const accuracy = totalItems > 0 ? ((score / (totalItems * 10)) * 100).toFixed(1) : 0
-    
     return (
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-large p-4 sm:p-6 lg:p-8 border border-gray-100">
         <div className="text-center">
@@ -313,6 +492,37 @@ const RecyclingGame = () => {
                'Necesitas aprender más sobre reciclaje 📚'}
             </p>
           </div>
+
+          {(recordFlags.score || recordFlags.streak) && (
+            <div className="bg-gradient-to-r from-emerald-100 via-green-100 to-emerald-200 border border-emerald-300 rounded-xl px-4 py-3 mb-4 sm:mb-6 text-sm sm:text-base text-emerald-800 font-semibold">
+              {recordFlags.score && recordFlags.streak
+                ? '🌟 ¡Nuevo récord total y de racha! Sigue así, estás liderando el cambio.'
+                : recordFlags.score
+                ? '🌟 ¡Nuevo récord de puntaje! Tu clasificación fue excepcional.'
+                : '💥 ¡Nueva racha histórica! Tienes reflejos de reciclador profesional.'}
+            </div>
+          )}
+
+          {recentSessions.length > 0 && (
+            <div className="mb-4 sm:mb-6 text-left">
+              <h3 className="text-xs sm:text-sm uppercase tracking-wide text-gray-500 font-semibold mb-2">Historial reciente</h3>
+              <div className="space-y-2">
+                {recentSessions.map((session, index) => (
+                  <div
+                    key={`${session.timestamp}-res-${index}`}
+                    className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
+                  >
+                    <span className="text-gray-400 w-full sm:w-auto">
+                      {new Date(session.timestamp).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })}
+                    </span>
+                    <span className="text-gray-600">Puntos: <strong>{session.score}</strong></span>
+                    <span className="text-gray-600">Racha: <strong>{session.maxStreak}</strong></span>
+                    <span className="text-gray-600">Precisión: <strong>{session.accuracy}%</strong></span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Botones - Responsive */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">

@@ -20,7 +20,12 @@ const MapView = () => {
     sitios: null,
     userMarker: null
   })
-  const [isLegendOpen, setIsLegendOpen] = useState(false)
+  const [isLegendOpen, setIsLegendOpen] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.localStorage.getItem('map-legend-open') === 'true'
+  })
+  const [activeOperatorFilter, setActiveOperatorFilter] = useState(null)
+  const operatorLayersRef = useRef({})
   
   const { 
     macrorutas, 
@@ -54,13 +59,83 @@ const MapView = () => {
     mapInstanceRef.current = map
     console.log('✅ Mapa inicializado')
     
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsLegendOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
       }
+      window.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem('map-legend-open', isLegendOpen ? 'true' : 'false')
+  }, [isLegendOpen])
+
+  const applyOperatorHighlight = (operador) => {
+    if (!operadorLayersRef.current[operador]) return
+    operatorLayersRef.current[operador].forEach(layer => {
+      const color = OPERADOR_COLORS[operador] || OPERADOR_COLORS.desconocido
+      const hexToRgba = (hex, alpha) => {
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`
+      }
+      layer.setStyle({
+        weight: 3,
+        opacity: 1,
+        color: hexToRgba(color, 1),
+        fillColor: hexToRgba(color, 0.25),
+        fillOpacity: 0.25
+      })
+      if (!layer.isTooltipOpen) {
+        layer.openTooltip()
+        layer.isTooltipOpen = true
+      }
+    })
+  }
+
+  const resetOperatorHighlight = (operador) => {
+    if (!operadorLayersRef.current[operador]) return
+    operatorLayersRef.current[operador].forEach(layer => {
+      if (layer.featureOriginalStyle) {
+        layer.setStyle(layer.featureOriginalStyle)
+      }
+      if (layer.isTooltipOpen) {
+        layer.closeTooltip()
+        layer.isTooltipOpen = false
+      }
+    })
+  }
+
+  const applyOperatorFilterStyles = () => {
+    const currentFilter = activeOperatorFilter
+    Object.entries(operatorLayersRef.current).forEach(([operador, layers]) => {
+      layers.forEach(layer => {
+        if (!layer.featureOriginalStyle) return
+        if (!currentFilter || operador === currentFilter) {
+          layer.setStyle(layer.featureOriginalStyle)
+          return
+        }
+        const baseStyle = layer.featureOriginalStyle
+        layer.setStyle({
+          ...baseStyle,
+          fillOpacity: Math.max(baseStyle.fillOpacity * 0.3, 0.01),
+          opacity: Math.max(baseStyle.opacity * 0.4, 0.15)
+        })
+      })
+    })
+  }
   
   // Renderizar macrorutas
   useEffect(() => {
@@ -73,6 +148,7 @@ const MapView = () => {
       mapInstanceRef.current.removeLayer(layersRef.current.macrorutas)
       layersRef.current.macrorutas = null
     }
+    operatorLayersRef.current = {}
     
     if (!activeLayers.macrorutas) return
     
@@ -189,6 +265,14 @@ const MapView = () => {
               layer.closeTooltip()
             }
           })
+
+          const operadorKey = props.operador || 'desconocido'
+          if (!operatorLayersRef.current[operadorKey]) {
+            operatorLayersRef.current[operadorKey] = []
+          }
+          operatorLayersRef.current[operadorKey].push(layer)
+          layer.featureOriginalStyle = originalStyle
+          layer.isTooltipOpen = false
         }
       })
       
@@ -204,11 +288,18 @@ const MapView = () => {
       // Log de distribución
       console.log('✅ Macrorutas renderizadas - Distribución:', operadorCounts)
       
+      applyOperatorFilterStyles()
+
     } catch (error) {
       console.error('❌ Error renderizando macrorutas:', error)
     }
     
   }, [macrorutas, activeLayers.macrorutas])
+
+  useEffect(() => {
+    if (!mapInstanceRef.current || !macrorutas) return
+    applyOperatorFilterStyles()
+  }, [activeOperatorFilter, macrorutas])
   
   // Renderizar sitios de aprovechamiento
   useEffect(() => {
@@ -386,9 +477,22 @@ const MapView = () => {
                   {Object.entries(OPERADOR_COLORS).map(([operador, color]) => {
                     if (operador === 'desconocido') return null
                     return (
-                      <div key={operador} className="flex items-center gap-2">
+                      <button
+                        key={operador}
+                        type="button"
+                        onClick={() => setActiveOperatorFilter(prev => prev === operador ? null : operador)}
+                        onMouseEnter={() => applyOperatorHighlight(operador)}
+                        onMouseLeave={() => {
+                          resetOperatorHighlight(operador)
+                          applyOperatorFilterStyles()
+                        }}
+                        className={`group flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 ${
+                          activeOperatorFilter === operador ? 'bg-emerald-50 border border-emerald-200' : 'hover:bg-gray-100'
+                        }`}
+                        aria-pressed={activeOperatorFilter === operador}
+                      >
                         <div 
-                          className="w-4 h-3 sm:w-5 sm:h-4 rounded border-2 flex-shrink-0"
+                          className="w-4 h-3 sm:w-5 sm:h-4 rounded border-2 flex-shrink-0 transition-all duration-200 group-hover:scale-110"
                           style={{ 
                             backgroundColor: `${color}60`,
                             borderColor: color
@@ -397,7 +501,10 @@ const MapView = () => {
                         <span className="text-xs text-gray-700 font-medium truncate">
                           {OPERADORES_NOMBRES[operador]}
                         </span>
-                      </div>
+                        <span className="ml-auto text-[10px] uppercase tracking-wide text-gray-400 group-hover:text-emerald-500">
+                          {activeOperatorFilter === operador ? 'Filtrando' : 'Ver zonas'}
+                        </span>
+                      </button>
                     )
                   })}
                 </div>
@@ -429,7 +536,7 @@ const MapView = () => {
               <div className="border-t pt-2 mt-2">
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${activeLayers.macrorutas ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${activeLayers.macrorutas ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                     <span className="text-gray-600">Zonas</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -437,6 +544,15 @@ const MapView = () => {
                     <span className="text-gray-600">Sitios</span>
                   </div>
                 </div>
+                {activeOperatorFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveOperatorFilter(null)}
+                    className="mt-3 text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 underline-offset-2 hover:underline"
+                  >
+                    Quitar filtro de operador
+                  </button>
+                )}
               </div>
             </div>
           </div>
