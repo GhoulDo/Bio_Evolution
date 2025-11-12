@@ -420,6 +420,14 @@ const MapView = () => {
       mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 15, {
         animate: true
       })
+
+      requestAnimationFrame(() => {
+        try {
+          mapInstanceRef.current?.invalidateSize({ animate: true })
+        } catch (invalidateError) {
+          console.warn('⚠️ Error al recalcular tamaño del mapa:', invalidateError)
+        }
+      })
       
       console.log('✅ Marcador de usuario actualizado')
       
