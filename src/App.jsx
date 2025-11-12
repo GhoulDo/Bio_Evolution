@@ -90,7 +90,7 @@ function AppContent() {
             {/* Layout responsive mejorado */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Columna izquierda: Mapa y controles */}
-              <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-2 lg:order-1">
+              <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-1 lg:order-1">
                 <div ref={mapContainerRef} className="h-[400px] sm:h-[500px] lg:h-[600px] rounded-xl sm:rounded-2xl overflow-hidden shadow-large border border-gray-200 animate-fade-in">
                   <MapView />
                 </div>
@@ -106,7 +106,7 @@ function AppContent() {
               </div>
               
               {/* Columna derecha: Panel de información */}
-              <div className="lg:col-span-1 order-1 lg:order-2">
+              <div className="lg:col-span-1 order-2 lg:order-2">
                 <div className="lg:sticky lg:top-24">
                   <InfoPanel />
                 </div>
